@@ -1,0 +1,26 @@
+# Virtual Environment
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# IDE
+.vscode/
+.idea/
+
+# Environment
+.env
+
+# Alembic cache
+alembic/__pycache__/
+
+# pytest
+.pytest_cache/
+
+# Ruff
+.ruff_cache/
+
+# OS
+.DS_Store
