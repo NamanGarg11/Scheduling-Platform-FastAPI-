@@ -6,7 +6,9 @@ from app.core.exceptions import register_exception_handlers
 from app.core.logging import setup_logging
 from app.core.response import ApiResponse
 from app.users.router import router as user_router
-
+from app.event_types.router import (
+    router as event_type_router,
+)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     setup_logging()
@@ -40,3 +42,6 @@ async def health() -> ApiResponse[dict[str, str]]:
 
 
 app.include_router(user_router)
+app.include_router(
+    event_type_router,
+)
