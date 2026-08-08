@@ -24,6 +24,7 @@ from app.users.model import User
 from app.event_types.model import EventType
 from app.availability.model import Availability
 from app.slots.model import Slot
+from app.bookings.model import Booking
 target_metadata = Base.metadata
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
