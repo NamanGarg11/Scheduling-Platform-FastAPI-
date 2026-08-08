@@ -43,9 +43,13 @@ def get_event_type_service(
     repository: EventTypeRepository = Depends(
         get_event_type_repository,
     ),
+    user_repository: UserRepository = Depends(
+        get_user_repository,
+    ),
 ) -> EventTypeService:
     return EventTypeService(
         repository,
+        user_repository,
     )
 
 # availability crud
@@ -65,6 +69,9 @@ def get_availability_service(
     repository: AvailabilityRepository = Depends(
         get_availability_repository,
     ),
+    user_repository: UserRepository = Depends(
+        get_user_repository,
+    ),
 ) -> AvailabilityService:
     """
     Create AvailabilityService dependency.
@@ -72,6 +79,7 @@ def get_availability_service(
 
     return AvailabilityService(
         repository,
+        user_repository,
     )
 # slot crud
 # repository dependency

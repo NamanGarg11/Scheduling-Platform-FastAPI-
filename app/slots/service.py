@@ -141,7 +141,7 @@ class SlotService:
 
         existing_slots = (
             await self.slot_repository
-            .find_existing_by_event_type_and_range(
+            .find_by_event_type_in_range(
                 event_type_id=event_type.id,
                 start_at=range_start,
                 end_at=range_end,

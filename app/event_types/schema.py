@@ -41,18 +41,28 @@ class CreateEventTypeRequest(BaseModel):
         le=120,
     )
 
-@field_validator("location_value")
-@classmethod
-def validate_location_value(cls, value: str | None) -> str | None:
-    if value is None:
-        return None
+    @field_validator("title")
+    @classmethod
+    def validate_title(cls, value: str) -> str:
+        value = value.strip()
 
-    value = value.strip()
+        if not value:
+            raise ValueError("Title cannot be blank.")
 
-    if not value:
-        raise ValueError("Location value cannot be blank.")
+        return value
 
-    return value
+    @field_validator("location_value")
+    @classmethod
+    def validate_location_value(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+
+        value = value.strip()
+
+        if not value:
+            raise ValueError("Location value cannot be blank.")
+
+        return value
 
 class UpdateEventTypeRequest(BaseModel):
 
@@ -93,6 +103,36 @@ class UpdateEventTypeRequest(BaseModel):
     )
 
     is_active: bool | None = None
+
+    @field_validator("title")
+    @classmethod
+    def validate_optional_title(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+
+        value = value.strip()
+
+        if not value:
+            raise ValueError("Title cannot be blank.")
+
+        return value
+
+    @field_validator("location_value")
+    @classmethod
+    def validate_optional_location_value(
+        cls,
+        value: str | None,
+    ) -> str | None:
+        if value is None:
+            return None
+
+        value = value.strip()
+
+        if not value:
+            raise ValueError("Location value cannot be blank.")
+
+        return value
+
 class EventTypeResponse(BaseModel):
 
     model_config = ConfigDict(
@@ -124,12 +164,13 @@ class EventTypeResponse(BaseModel):
     created_at: datetime
 
     updated_at: datetime
-@field_validator("title")
-@classmethod
-def validate_title(cls, value: str) -> str:
-    value = value.strip()
 
-    if not value:
-        raise ValueError("Title cannot be blank.")
+    @field_validator("title")
+    @classmethod
+    def validate_response_title(cls, value: str) -> str:
+        value = value.strip()
 
-    return value
+        if not value:
+            raise ValueError("Title cannot be blank.")
+
+        return value
