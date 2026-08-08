@@ -12,6 +12,7 @@ from app.core.exceptions.base import (
     NotFoundException,
 )
 from app.core.logging import get_logger
+from app.users.repository import UserRepository
 
 logger = get_logger(__name__)
 class AvailabilityService:
@@ -19,8 +20,10 @@ class AvailabilityService:
     def __init__(
         self,
         repository: AvailabilityRepository,
+        user_repository: UserRepository,
     ):
         self.repository = repository
+        self.user_repository = user_repository
         # centralized place to handle all the business logic related to availability
     async def _validate_duplicate_day(
         self,
@@ -69,6 +72,20 @@ class AvailabilityService:
             host_id,
             request.day_of_week.value,
         )
+
+        host = await self.user_repository.find_by_id(
+            host_id,
+        )
+
+        if host is None:
+            logger.warning(
+                "Host %s does not exist. Rejecting availability creation.",
+                host_id,
+            )
+
+            raise NotFoundException(
+                "Availability host not found."
+            )
 
         await self._validate_duplicate_day(
             host_id,
