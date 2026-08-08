@@ -16,6 +16,8 @@ from app.availability.service import AvailabilityService
 from app.slots.repository import SlotRepository
 from app.slots.service import SlotService
 from app.slots.slot_generation import SlotGenerationEngine
+from app.bookings.repository import BookingRepository
+from app.bookings.service import BookingService
 #  user crud
 # repository dependency
 def get_user_repository(
@@ -114,4 +116,25 @@ def get_slot_service(
         availability_repository=availability_repository,
         user_repository=user_repository,
         generation_engine=generation_engine,
+    )
+
+# booking engine 
+# repository dependency
+def get_booking_repository(
+    session: DBSession,
+) -> BookingRepository:
+    return BookingRepository(session)
+# service dependency
+def get_booking_service(
+    repository: BookingRepository = Depends(
+        get_booking_repository,
+    ),
+    user_repository: UserRepository = Depends(
+        get_user_repository,
+    ),
+) -> BookingService:
+
+    return BookingService(
+        repository=repository,
+        user_repository=user_repository,
     )
