@@ -1,5 +1,3 @@
-from typing import TYPE_CHECKING
-
 from sqlalchemy import (
     Boolean,
     ForeignKey,
@@ -13,9 +11,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database.base import Base
 from app.core.database.mixins import TimestampMixin, UUIDMixin
-
-if TYPE_CHECKING:
-    from app.users.model import User
+from app.users.model import User
 
 
 class EventType(

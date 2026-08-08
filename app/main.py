@@ -12,6 +12,8 @@ from app.event_types.router import (
 from app.availability.router import (
     router as availability_router,
 )
+from app.slots.router import router as slot_router
+from app.bookings.router import router as booking_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     setup_logging()
@@ -50,4 +52,8 @@ app.include_router(
 )
 app.include_router(
     availability_router,
+)
+app.include_router(slot_router)
+app.include_router(
+    booking_router,
 )

@@ -13,6 +13,22 @@ from app.core.response import ErrorResponse
 logger = get_logger(__name__)
 
 
+def _json_safe(value: object) -> object:
+    """
+    Recursively convert a value into something json.dumps can encode.
+    Validation error `ctx` values can hold arbitrary exception objects
+    (e.g. the raw ValueError from a model_validator) that plain
+    json.dumps cannot serialize.
+    """
+    if isinstance(value, dict):
+        return {key: _json_safe(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(item) for item in value]
+    if value is None or isinstance(value, (bool, int, float, str)):
+        return value
+    return str(value)
+
+
 def register_exception_handlers(
     app: FastAPI,
 ) -> None:
@@ -39,7 +55,7 @@ def register_exception_handlers(
         exc: RequestValidationError,
     ) -> JSONResponse:
         mapped = ValidationException(
-            details=exc.errors(),
+            details=_json_safe(exc.errors()),
         )
 
         return JSONResponse(

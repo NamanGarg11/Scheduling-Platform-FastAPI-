@@ -4,13 +4,14 @@ from app.core.logging import get_logger
 
 logger = get_logger(__name__)
 
-from app.core.exceptions.base import NotFoundException
+from app.core.exceptions.base import NotFoundException, ValidationException
 from app.event_types.model import EventType
 from app.event_types.repository import EventTypeRepository
 from app.event_types.schema import (
     CreateEventTypeRequest,
     UpdateEventTypeRequest,
 )
+from app.users.repository import UserRepository
 from app.utils.slug import slugify
 
 class EventTypeService:
@@ -20,8 +21,10 @@ class EventTypeService:
     def __init__(
         self,
         repository: EventTypeRepository,
+        user_repository: UserRepository,
     ):
         self.repository = repository
+        self.user_repository = user_repository
 #  method to generate a unique slug for an event type based on the title and host ID
     async def generate_unique_slug(
         self,
@@ -70,6 +73,20 @@ class EventTypeService:
         #
         # Business Validation
         #
+
+        host = await self.user_repository.find_by_id(
+            host_id,
+        )
+
+        if host is None:
+            logger.warning(
+                "Host %s does not exist. Rejecting event type creation.",
+                host_id,
+            )
+
+            raise NotFoundException(
+                "Event type host not found."
+            )
 
         if (
             request.location_type.name == "IN_PERSON"
