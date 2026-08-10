@@ -17,6 +17,7 @@ from app.core.response import ApiResponse
 from app.event_types.router import (
     router as event_type_router,
 )
+from app.slots.public_router import router as public_slot_router
 from app.slots.router import router as slot_router
 from app.users.router import router as user_router
 
@@ -64,6 +65,7 @@ app.include_router(
     availability_router,
 )
 app.include_router(slot_router)
+app.include_router(public_slot_router)
 app.include_router(
     booking_router,
 )

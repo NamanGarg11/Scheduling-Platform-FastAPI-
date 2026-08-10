@@ -70,6 +70,37 @@ class SlotRepository(BaseRepository[Slot]):
 
         return list(result.scalars().all())
 
+    async def find_available_for_event_type_in_range(
+        self,
+        *,
+        event_type_id: UUID,
+        start_at: datetime,
+        end_at: datetime,
+    ) -> list[Slot]:
+        """AVAILABLE slots for one event type with ``start_at`` in
+        ``[start_at, end_at)`` (UTC), ordered by ``start_at`` (S3).
+
+        Served by the existing unique index
+        ``uq_slot_event_type_start_end (event_type_id, start_at, end_at)``.
+        """
+
+        stmt = (
+            select(Slot)
+            .where(
+                Slot.event_type_id == event_type_id,
+                Slot.status == SlotStatus.AVAILABLE,
+                Slot.start_at >= start_at,
+                Slot.start_at < end_at,
+            )
+            .order_by(
+                Slot.start_at.asc(),
+            )
+        )
+
+        result = await self.session.execute(stmt)
+
+        return list(result.scalars().all())
+
     async def find_by_event_type_and_start(
         self,
         *,

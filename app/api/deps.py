@@ -15,6 +15,7 @@ from app.bookings.repository import BookingRepository
 from app.bookings.service import BookingService
 from app.event_types.repository import EventTypeRepository
 from app.event_types.service import EventTypeService
+from app.slots.public_service import PublicSlotService
 from app.slots.repository import SlotRepository
 from app.slots.service import SlotService
 from app.slots.slot_generation import SlotGenerationEngine
@@ -154,6 +155,29 @@ def get_slot_service(
         availability_exception_repository=availability_exception_repository,
         user_repository=user_repository,
         generation_engine=generation_engine,
+    )
+
+# public slot listing (S3)
+# service dependency
+def get_public_slot_service(
+    slot_repository: SlotRepository = Depends(
+        get_slot_repository,
+    ),
+    event_type_repository: EventTypeRepository = Depends(
+        get_event_type_repository,
+    ),
+    user_repository: UserRepository = Depends(
+        get_user_repository,
+    ),
+) -> PublicSlotService:
+    """
+    Create PublicSlotService dependency.
+    """
+
+    return PublicSlotService(
+        slot_repository=slot_repository,
+        event_type_repository=event_type_repository,
+        user_repository=user_repository,
     )
 
 # booking engine 

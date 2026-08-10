@@ -178,3 +178,55 @@ class SlotRegenerationResponse(BaseModel):
     booked_count: int = Field(
         ge=0,
     )
+
+
+class PublicSlotResponse(BaseModel):
+    """A bookable slot in the public listing (S3). Timestamps are UTC instants."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+
+    start_at: datetime
+
+    end_at: datetime
+
+
+class PublicDayGroup(BaseModel):
+    """Slots grouped by local calendar day in the requested timezone (S3)."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+
+    date: date
+
+    slots: list[PublicSlotResponse]
+
+
+class PublicEventTypeSummary(BaseModel):
+    """Public-safe event type projection (no host metadata)."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+
+    id: UUID
+
+    slug: str
+
+    title: str
+
+
+class PublicSlotListingResponse(BaseModel):
+    """Read-only public availability projection (S3, ADR-017)."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+
+    event_type: PublicEventTypeSummary
+
+    timezone: str
+
+    days: list[PublicDayGroup]

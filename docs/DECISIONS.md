@@ -220,14 +220,23 @@ orchestrator in S1–S3.
 **Status: Accepted**
 
 ```
-GET /api/public/users/{user_id}/event-types/{slug}/slots?from=&to=&timezone=
+GET /api/public/users/{user_id}/event-types/{slug}/slots?from_date=&to_date=&timezone=
 ```
 
-- `to − from <= 62 days`, otherwise `400`.
+- `from_date`/`to_date` are inclusive local calendar dates in the resolved timezone
+  (requested, else the host's), expanded to `[from 00:00, (to+1) 00:00)` and converted to UTC
+  — identical semantics to regeneration (ADR-021). Defaults: today → today + 30 days.
+- `to_date − from_date <= 62 days`, otherwise `400`; `from_date > to_date` → `400`.
 - Payload timestamps are UTC ISO-8601.
-- The grouping key is the local calendar date in the requested timezone (e.g., `2026-08-10T23:30Z`
-  groups under `2026-08-11` for Asia/Kolkata). The requested timezone is echoed in the response
-  and defaults to the host's timezone.
+- The grouping key is the local calendar date in the resolved timezone (e.g., `2026-08-09T20:30Z`
+  groups under `2026-08-10` for Asia/Kolkata). The resolved timezone is echoed in the response
+  and defaults to the host's timezone; an invalid timezone → `400`.
+- The endpoint is intentionally public (no auth header) and strictly read-only: only AVAILABLE
+  slots are returned, past slots are excluded, and no slot is generated, reconciled, or
+  reserved. Unknown user / unknown slug / another user's slug / inactive event type → `404`
+  (no existence leak). A valid request with no slots returns `200` with `days: []`.
+- The query is served by the existing unique index `uq_slot_event_type_start_end
+  (event_type_id, start_at, end_at)`; no new index was added.
 
 ## ADR-018 — Module layout
 
