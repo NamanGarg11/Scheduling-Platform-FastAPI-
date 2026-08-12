@@ -109,3 +109,124 @@ class SlotGenerationResponse(BaseModel):
     )
 
     slots: list[SlotResponse]
+
+
+class RegenerateSlotsRequest(BaseModel):
+    """
+    Trigger host-wide slot regeneration over an optional date range.
+
+    Dates are host-local inclusive calendar dates; the range is expanded to
+    ``[from 00:00, (to+1) 00:00)`` in the host's timezone and converted to UTC
+    (ADR-021).
+    """
+
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+
+    from_date: date | None = None
+
+    to_date: date | None = None
+
+    @model_validator(mode="after")
+    def validate_date_range(self) -> "RegenerateSlotsRequest":
+        if (
+            self.from_date is not None
+            and self.to_date is not None
+            and self.from_date > self.to_date
+        ):
+            raise ValueError(
+                "from_date cannot be after to_date."
+            )
+
+        return self
+
+
+class SlotRegenerationResponse(BaseModel):
+    """
+    Result of a host-wide slot regeneration (ADR-021).
+    """
+
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+
+    host_id: UUID
+
+    from_date: date
+
+    to_date: date
+
+    timezone: str
+
+    generated_count: int = Field(
+        ge=0,
+    )
+
+    restored_count: int = Field(
+        ge=0,
+    )
+
+    blocked_count: int = Field(
+        ge=0,
+    )
+
+    kept_count: int = Field(
+        ge=0,
+    )
+
+    booked_count: int = Field(
+        ge=0,
+    )
+
+
+class PublicSlotResponse(BaseModel):
+    """A bookable slot in the public listing (S3). Timestamps are UTC instants."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+
+    start_at: datetime
+
+    end_at: datetime
+
+
+class PublicDayGroup(BaseModel):
+    """Slots grouped by local calendar day in the requested timezone (S3)."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+
+    date: date
+
+    slots: list[PublicSlotResponse]
+
+
+class PublicEventTypeSummary(BaseModel):
+    """Public-safe event type projection (no host metadata)."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+
+    id: UUID
+
+    slug: str
+
+    title: str
+
+
+class PublicSlotListingResponse(BaseModel):
+    """Read-only public availability projection (S3, ADR-017)."""
+
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+
+    event_type: PublicEventTypeSummary
+
+    timezone: str
+
+    days: list[PublicDayGroup]
